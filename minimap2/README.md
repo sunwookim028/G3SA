@@ -46,7 +46,7 @@ Supported options include:
 * `input.fasta`: query reads
 * `output.sam`: output SAM file
 
-Note: Not all minimap2 options are supported. This version was developed based on `-ax map-ont` option of original minimap2. (please refer to [[minimap2 manual]](https://github.com/lh3/minimap2))
+Note: Not all minimap2 options are supported. This version was developed based on `-ax map-ont` option of original minimap2. (please refer to the [minimap2 manual](https://github.com/lh3/minimap2))
 
 ### 2. Input format
 
