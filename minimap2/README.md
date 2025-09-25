@@ -42,12 +42,11 @@ make
 
 Supported options include:
 
-* `-x`: preset (e.g., `map-ont`, `map-pb`, etc. refer to: minimap2 link)
 * `ref.mmi`: pre-built reference index
 * `input.fasta`: query reads
 * `output.sam`: output SAM file
 
-Note: Not all minimap2 options are supported. This version was developed based on `-ax map-ont` option of original minimap2.
+Note: Not all minimap2 options are supported. This version was developed based on `-ax map-ont` option of original minimap2. (please refer to [[minimap2 manual]](https://github.com/lh3/minimap2))
 
 ### 2. Input format
 
@@ -72,6 +71,32 @@ For more details on how to build and use minimap2 indexes, please refer to the [
 ### 3. Output format
 The output is a SAM file with full CIGAR string representation of each alignment.
 
+### 4. Configuration
+The program reads settings from `config.json` (if present) and allows CLI overrides.  
+Priority: **defaults → config.json → CLI**.
+
+* Example `config.json`
+```json
+{
+  "batch_size": 4000, // number of reads in a GPU batch
+  "num_reads": 10000, // total number of reads
+  "max_seq_len": 10000 // maximum length of a single read
+}
+```
+
+* Usage
+- Run with defaults:  
+  ```bash
+  ./my_binary
+  ```
+- Use a config file:  
+  ```bash
+  ./my_binary --config config.json
+  ```
+- Override on CLI:  
+  ```bash
+  ./my_binary --batch_size 2000 --max_seq_len=5000
+  ```
 
 ## Reproducing Results
 
