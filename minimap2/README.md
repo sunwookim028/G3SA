@@ -78,9 +78,9 @@ Priority: **defaults → config.json → CLI**.
 * Example `config.json`
 ```json
 {
-  "batch_size": 4000, // number of reads in a GPU batch
-  "num_reads": 10000, // total number of reads
-  "max_seq_len": 10000 // maximum length of a single read
+  "batch_size": 4000, # number of reads in a GPU batch
+  "num_reads": 10000, # total number of reads
+  "max_seq_len": 10000 # maximum length of a single read
 }
 ```
 
