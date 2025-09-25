@@ -19,16 +19,7 @@ Presented at International Conference on Supercomputing (ICS), 2025
 Assuming you are in the root directory of the project:
 
 ```bash
-cd minimap2_gpu
-make
-````
-
-You may also use the provided Docker environment from the root directory.
-
-```bash
-docker build -t gpu-aligner -f docker/Dockerfile .
-docker run --gpus all -it --rm -v $(pwd):/workspace gpu-aligner
-cd minimap2_gpu
+cd minimap2
 make
 ```
 
