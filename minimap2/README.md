@@ -100,7 +100,7 @@ Priority: **defaults → config.json → CLI**.
 
 ## Reproducing Results
 
-To reproduce the results reported in the paper (e.g., throughput or accuracy evaluation):
+To reproduce the results reported in the paper :
 
 ```bash
 bash ./scripts/run_minimap2_gpu_benchmark.sh
