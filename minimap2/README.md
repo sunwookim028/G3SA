@@ -76,7 +76,7 @@ The program reads settings from `config.json` (if present) and allows CLI overri
 Priority: **defaults → config.json → CLI**.
 
 * Example `config.json`
-```json
+```bash
 {
   "batch_size": 4000, # number of reads in a GPU batch
   "num_reads": 10000, # total number of reads
