@@ -87,15 +87,15 @@ Priority: **defaults → config.json → CLI**.
 * Usage
 - Run with defaults:  
   ```bash
-  ./my_binary
+  ./bin/minimap2-gpu
   ```
 - Use a config file:  
   ```bash
-  ./my_binary --config config.json
+  ./bin/minimap2-gpu --config config.json
   ```
 - Override on CLI:  
   ```bash
-  ./my_binary --batch_size 2000 --max_seq_len=5000
+  ./bin/minimap2-gpu --batch_size 2000 --max_seq_len=5000
   ```
 
 ## Reproducing Results
