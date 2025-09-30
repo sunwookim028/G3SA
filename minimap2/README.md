@@ -92,7 +92,7 @@ Priority: **defaults → config.json → CLI**.
 
 We provide a sample script below : 
 
-The reference and query datasets are available each at [Reference](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001405.39/) & [Query] (https://github.com/genome-in-a-bottle/giab_data_indexes)
+The reference and query datasets are available each at [Reference](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001405.39/) and [Query] (https://github.com/genome-in-a-bottle/giab_data_indexes)
 
 ```bash
 bash ./scripts/run_minimap2_gpu_benchmark.sh
