@@ -1,4 +1,4 @@
-# minimap2-gpu
+# Minimap2
 
 This is the minimap2-based GPU implementation described in the paper:
 
