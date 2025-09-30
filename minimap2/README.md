@@ -44,9 +44,8 @@ Note: Not all minimap2 options are supported. This version was developed based o
 * Query reads
 
 This implementation accepts standard **FASTA** files for query reads.
-A small example dataset is provided in the repository under the `data/` directory for testing purposes.
 
-Larger datasets can be downloaded from various sources such as [GenBank](https://www.ncbi.nlm.nih.gov/genbank/) or projects such as [Genome in a Bottle](https://www.nist.gov/programs-projects/genome-bottle). 
+Datasets can be downloaded from various sources such as [GenBank](https://www.ncbi.nlm.nih.gov/genbank/) or projects such as [Genome in a Bottle](https://www.nist.gov/programs-projects/genome-bottle). 
 
 * Reference index
   
@@ -93,10 +92,12 @@ Priority: **defaults → config.json → CLI**.
 
 We provide a sample script below : 
 
+The reference and query datasets are available each at [Reference](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001405.39/) & [Query] (https://github.com/genome-in-a-bottle/giab_data_indexes)
+
 ```bash
 bash ./scripts/run_minimap2_gpu_benchmark.sh
 ```
-The provided parameter settings are optimized to a a6000 GPU.
+The provided parameter settings are optimized to a a6000 GPU with a human genome reference index.
 Please modify the script/parameters to match your dataset and hardware setup.
 
 ## Contact
