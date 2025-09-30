@@ -78,26 +78,26 @@ Priority: **defaults → config.json → CLI**.
 * Usage
 - Run with defaults:  
   ```bash
-  ./bin/minimap2-gpu
+  ./bin/minimap2-gpu ref.mmi input.fasta 
   ```
 - Use a config file:  
   ```bash
-  ./bin/minimap2-gpu --config config.json
+  ./bin/minimap2-gpu ref.mmi input.fasta --config config.json
   ```
 - Override on CLI:  
   ```bash
-  ./bin/minimap2-gpu --batch_size 2000 --max_seq_len=5000
+  ./bin/minimap2-gpu ref.mmi input.fasta --batch_size 2000 --max_seq_len=5000
   ```
 
-## Reproducing Results
+## Running minimap2-gpu
 
-To reproduce the results reported in the paper :
+We provide a sample script below : 
 
 ```bash
 bash ./scripts/run_minimap2_gpu_benchmark.sh
 ```
-
-Modify the script to match your dataset and hardware setup.
+The provided parameter settings are optimized to a a6000 GPU.
+Please modify the script/parameters to match your dataset and hardware setup.
 
 ## Contact
 
