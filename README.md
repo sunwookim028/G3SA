@@ -40,7 +40,4 @@ Each subdirectory contains a README with detailed build and run instructions:
 
 ## Contact
 
-For questions or issues, please contact \[[hyjoo16@snu.ac.kr](mailto:hyjoo16@snu.ac.kr)] or \[[@@](mailto:@@)].
-
-
-
+For questions or issues, please contact \[[hyjoo16@snu.ac.kr](mailto:hyjoo16@snu.ac.kr)] or \[[sk3463@cornell.edu](mailto:sk3463@cornell.edu)]
