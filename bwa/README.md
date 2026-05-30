@@ -2,6 +2,7 @@
 This is the BWA-MEM pipeline GPU implementation described in the paper:
 
 📣 Note (May 2026): An update will be released soon.
+
 ⚠️ Note (Nov 2025): Some functionality issues are being revised.
 
 **"G³SA: A GPU-Accelerated Gold Standard Genomics Library for End-to-End Sequence Alignment"**  
