@@ -1,95 +1,89 @@
-# Compilers and flags
-INCLUDES = -Isrc -Iext/zlib-1.3.1 -Iext/safestringlib/include -Iext/bwa-mem2/include
-CXX = g++
-CXXFLAGS = -Wall -std=c++11 -pthread $(INCLUDES) -MMD -MP -O3 #-lineinfo -g #-O0
-CC = gcc
-CFLAGS = -Wall -Wno-unused-function -O3 $(INCLUDES) -lm -MMD -MP
-NVCC = nvcc
-CU_ARCH = sm_86 # A6000: sm_86, rtx4090: sm_89
+# G3SA — GPU-accelerated BWA-MEM. Build: make all [CU_ARCH=sm_XX]
+# Match CU_ARCH to your GPU: RTX A6000 / RTX 3090 = sm_86, RTX 4090 = sm_89,
+# GTX 1080 Ti / Titan Xp = sm_61. Wrong arch fails at runtime with
+# "named symbol not found".
+
+CUDA_HOME ?= /usr/local/cuda
+CU_ARCH   ?= sm_86
 CU_COMPUTE_ARCH = $(subst sm,compute,$(CU_ARCH))
 
-__NVFLAGS = -ccbin $(CXX) --gpu-architecture=$(CU_COMPUTE_ARCH) --gpu-code=$(CU_ARCH) --default-stream per-thread $(INCLUDES) -Xptxas -O4 -Xcompiler -O4
-_NVFLAGS = -ccbin $(CXX) --gpu-architecture=$(CU_COMPUTE_ARCH) --gpu-code=$(CU_ARCH) --default-stream per-thread $(INCLUDES) -MMD -MP -dc
-NVFLAGS = $(_NVFLAGS) -Xptxas -O4 -Xcompiler -O4  -lineinfo
+INCLUDES = -Isrc -Isrc/seeding -Isrc/chaining -Isrc/extension \
+           -Isrc/finalize -Isrc/mem -Isrc/host -Isrc/types \
+           -Isrc/legacy -Isrc/third_party \
+           -Iext/zlib-1.3.1 -Iext/safestringlib/include -Iext/bwa-mem2/include
+
+CXX = g++
+CXXFLAGS       = -Wall -std=c++17 -pthread $(INCLUDES) -MMD -MP -O3
+CXXFLAGS_DEBUG = -Wall -std=c++17 -pthread $(INCLUDES) -MMD -MP -O0 -g
+CC = gcc
+CFLAGS       = -Wall -Wno-unused-function -O3 $(INCLUDES) -lm -MMD -MP
+CFLAGS_DEBUG = -Wall -Wno-unused-function -O0 -g $(INCLUDES) -lm -MMD -MP
+
+NVCC = nvcc
+_NVFLAGS  = -ccbin $(CXX) --gpu-architecture=$(CU_COMPUTE_ARCH) --gpu-code=$(CU_ARCH) \
+            --default-stream per-thread --std=c++17 $(INCLUDES) -MMD -MP -dc
+__NVFLAGS = -ccbin $(CXX) --gpu-architecture=$(CU_COMPUTE_ARCH) --gpu-code=$(CU_ARCH) \
+            --default-stream per-thread --std=c++17 $(INCLUDES) -Xptxas -O4 -Xcompiler -O4
+NVFLAGS       = $(_NVFLAGS) -Xptxas -O4 -Xcompiler -O4 \
+                -DG3_SM_OCC_CACHE
 NVFLAGS_DEBUG = $(_NVFLAGS) -G -g
+NVFLAGS_EXTRA ?=
 
-LINKFLAGS = -Lext/zlib-1.3.1 -Lext/safestringlib -L/usr/local/cuda/lib64 -Lext/bwa-mem2 -pthread
-LIBS = -lz -lcudart -lcudadevrt -lsafestring -lreadindexele -lbntseq
+LINKFLAGS = -Lext/zlib-1.3.1 -Lext/safestringlib -L$(CUDA_HOME)/lib64 -Lext/bwa-mem2 -pthread
+LIBS = -lz -lcudart -lcudadevrt -lsafestring -lreadindexele -lbntseq -ldl
 
-# Target executable
 HASHER = hasher.exe
-EXE = g3.exe
+EXE    = g3.exe
 
-# Sources, objects and dependencies files
-CPP_SOURCES = $(wildcard src/*.cpp)
-C_SOURCES = $(wildcard src/*.c)
-CU_SOURCES = $(wildcard src/*.cu)
+CPP_OBJECTS_EXE = src/host/load_kmer_index.o \
+                  src/host/hash_kmer.o \
+                  src/host/timer.o \
+                  src/host/fastmap.o \
+                  src/host/main.o \
+                  src/host/bwtindex.o \
+                  src/host/fmi_wrapper.o \
+                  src/host/fmi_search.o \
+                  src/legacy/utils.o \
+                  src/host/memcpy_bwamem.o \
+                  src/host/pipeline.o
+CPP_OBJECTS_HASHER = src/host/build_index.o \
+                     src/host/hash_kmer.o \
+                     src/host/load_kmer_index.o
+C_OBJECTS_EXE = src/legacy/malloc_wrap.o \
+                src/legacy/bwt.o
 
-CPP_OBJECTS = $(CPP_SOURCES:.cpp=.o)
-CPP_OBJECTS_HASHER = src/buildIndex.o \
-		      src/hashKMer.o \
-		      src/loadKMerIndex.o
-CPP_OBJECTS_EXE = src/loadKMerIndex.o \
-		      src/timer.o \
-		      src/fastmap.o \
-		      src/main.o \
-		      src/FMI_wrapper.o \
-		      src/FMI_search.o \
-		      src/utils.o \
-		      src/kopen.o \
-		      src/memcpy_bwamem.o \
-		      src/pipeline.o
-
-C_OBJECTS = $(C_SOURCES:.c=.o)
-
-C_OBJECTS_EXE = src/malloc_wrap.o \
-		    src/bwt.o \
-
+CU_SOURCES = $(wildcard src/seeding/*.cu) $(wildcard src/chaining/*.cu) \
+             $(wildcard src/extension/*.cu) $(wildcard src/finalize/*.cu) \
+             $(wildcard src/mem/*.cu) $(wildcard src/host/*.cu) \
+             $(wildcard src/types/*.cu)
 CU_OBJECTS = $(CU_SOURCES:.cu=.o)
-
 CU_OBJECTS_LINKER = src/gpu_link.o
 
-# Compile rules
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 %.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 %.o: %.cu
-	$(NVCC) $(NVFLAGS) -c -o $@ $<
+	$(NVCC) $(NVFLAGS) $(NVFLAGS_EXTRA) -c -o $@ $<
 
-# Linking rule
-$(HASHER): $(CPP_OBJECTS_HASHER)
-	$(CXX) $(LINKFLAGS) -o $@ $^ -lz
+all: $(EXE)
 
-$(EXE): $(CPP_OBJECTS_EXE) $(C_OBJECTS_EXE) $(CU_OBJECTS_LINKER) $(CU_OBJECTS) 
-	$(CXX) $(LINKFLAGS) -L. -o $@ $^ $(LIBS) 
+$(EXE): $(CPP_OBJECTS_EXE) $(C_OBJECTS_EXE) $(CU_OBJECTS_LINKER) $(CU_OBJECTS)
+	$(CXX) $(LINKFLAGS) -L. -o $@ $^ $(LIBS)
 
 $(CU_OBJECTS_LINKER): $(CU_OBJECTS)
 	$(NVCC) $(__NVFLAGS) -dlink $^ --output-file $@
 
+$(HASHER): $(CPP_OBJECTS_HASHER)
+	$(CXX) $(LINKFLAGS) -o $@ $^ -lz
 
-# Make rules
-all: $(EXE)
-
-docs:
-	cd assets/docs/ && ../../scripts/make-docs.sh # in docs
-
-#tester
-tester.o: tester_main.cu
-	$(NVCC) $(NVFLAGS) -c -o $@ $^
-
-dlink.o: src/gmem_alloc.o tester.o
-	$(NVCC) $(__NVFLAGS) -dlink $^ --output-file $@
-
-tester.exe: tester.o dlink.o
-	nvcc -o tester.exe tester.o src/gmem_alloc.o dlink.o
+debug: CXXFLAGS = $(CXXFLAGS_DEBUG)
+debug: CFLAGS = $(CFLAGS_DEBUG)
+debug: NVFLAGS = $(NVFLAGS_DEBUG)
+debug: all
 
 clean:
-	rm -f *.o *.d *.exe
+	rm -f $(CU_OBJECTS_LINKER) $(CU_OBJECTS) $(HASHER) $(EXE)
+	rm -f src/*/*.o src/*/*.d src/*.o src/*.d
 
-cleanall:
-	rm -f  $(CU_OBJECTS_LINKER)  $(CU_OBJECTS) $(CPP_OBJECTS) $(C_OBJECTS) $(HASHER) $(EXE)
-
-.PHONY: all clean
-
-###########################################################################
+.PHONY: all clean debug
